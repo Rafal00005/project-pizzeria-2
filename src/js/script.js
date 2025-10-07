@@ -1,5 +1,4 @@
- /* global Handlebars, utils, dataSource */ // eslint-disable-line no-unused-vars
-
+/* global Handlebars, utils, dataSource */ // eslint-disable-line no-unused-vars
 
 {
   'use strict';
@@ -21,10 +20,6 @@
 
       // Initialize accordion behavior right after rendering
       thisProduct.initAccordion();
-
-      // Call newly created methods (as required by the task)
-      thisProduct.initOrderForm();
-      thisProduct.processOrder();
 
       console.log('new Product:', thisProduct);
     }
@@ -49,12 +44,8 @@
     // Collect and cache DOM references (run once per product)
     getElements() {
       const thisProduct = this;
-
+      // only clickable trigger needed for accordion at this stage
       thisProduct.accordionTrigger = thisProduct.element.querySelector(select.menuProduct.clickable);
-      thisProduct.form = thisProduct.element.querySelector(select.menuProduct.form);
-      thisProduct.formInputs = thisProduct.form.querySelectorAll(select.all.formInputs);
-      thisProduct.cartButton = thisProduct.element.querySelector(select.menuProduct.cartButton);
-      thisProduct.priceElem = thisProduct.element.querySelector(select.menuProduct.priceElem);
     }
 
     // Sets up accordion
@@ -79,40 +70,6 @@
         // toggle active class on thisProduct.element
         thisProduct.element.classList.toggle(classNames.menuProduct.wrapperActive);
       });
-    }
-
-    // Add event listeners to the form, its inputs, and the add-to-cart button
-    initOrderForm() {
-      const thisProduct = this;
-
-      // Prevent default form submission and recompute price
-      thisProduct.form.addEventListener('submit', function(event){
-        event.preventDefault();
-        thisProduct.processOrder();
-      });
-
-      // Recompute price on any input change
-      for (let input of thisProduct.formInputs) {
-        input.addEventListener('change', function(){
-          thisProduct.processOrder();
-        });
-      }
-
-      // Prevent default link behavior and recompute price on add-to-cart click
-      thisProduct.cartButton.addEventListener('click', function(event){
-        event.preventDefault();
-        thisProduct.processOrder();
-      });
-    }
-
-    // Compute order (for now: log form data)
-    processOrder() {
-      const thisProduct = this;
-      console.log('processOrder');
-
-      // Read current form values as an object
-      const formData = utils.serializeFormToObject(thisProduct.form);
-      console.log('formData', formData);
     }
   }
 

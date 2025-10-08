@@ -21,6 +21,10 @@
       // Initialize accordion behavior right after rendering
       thisProduct.initAccordion();
 
+      // Cally created methods (as required by the task)
+      thisProduct.initOrderForm();
+      thisProduct.processOrder();
+
       console.log('new Product:', thisProduct);
     }
 
@@ -44,8 +48,12 @@
     // Collect and cache DOM references (run once per product)
     getElements() {
       const thisProduct = this;
-      // only clickable trigger needed for accordion at this stage
+
       thisProduct.accordionTrigger = thisProduct.element.querySelector(select.menuProduct.clickable);
+      thisProduct.form = thisProduct.element.querySelector(select.menuProduct.form);
+      thisProduct.formInputs = thisProduct.form.querySelectorAll(select.all.formInputs);
+      thisProduct.cartButton = thisProduct.element.querySelector(select.menuProduct.cartButton);
+      thisProduct.priceElem = thisProduct.element.querySelector(select.menuProduct.priceElem);
     }
 
     // Sets up accordion
@@ -70,6 +78,69 @@
         // toggle active class on thisProduct.element
         thisProduct.element.classList.toggle(classNames.menuProduct.wrapperActive);
       });
+    }
+
+    // Add event listeners to the form, its inputs, and the add-to-cart button
+    initOrderForm() {
+      const thisProduct = this;
+
+      // Prevent default form submission and recompute price
+      thisProduct.form.addEventListener('submit', function(event){
+        event.preventDefault();
+        thisProduct.processOrder();
+      });
+
+      // Recompute price on any input change
+      for (let input of thisProduct.formInputs) {
+        input.addEventListener('change', function(){
+          thisProduct.processOrder();
+        });
+      }
+
+      // Prevent default link behavior and recompute price on add-to-cart click
+      thisProduct.cartButton.addEventListener('click', function(event){
+        event.preventDefault();
+        thisProduct.processOrder();
+      });
+    }
+
+    // Compute order and update price
+    processOrder() {
+      const thisProduct = this;
+
+      /* NEW: read current form values as a plain object, e.g.
+         { sauce: ['tomato'], toppings: ['olives','salami'] } */
+      const formData = utils.serializeFormToObject(thisProduct.form);
+
+      /* NEW: start from the base price (includes defaults) */
+      let price = thisProduct.data.price;
+
+      /* NEW: go through every param and its options */
+      for (let paramId in thisProduct.data.params) {
+        const param = thisProduct.data.params[paramId];
+
+        for (let optionId in param.options) {
+          const option = param.options[optionId];
+
+          // Is this option selected in the form?
+          const optionSelected =
+            formData[paramId] && formData[paramId].includes(optionId);
+
+          // Pricing rules:
+          // - selected & not default  -> add
+          if (optionSelected && !option.default) {
+            price += option.price;
+          }
+          // - not selected & default -> subtract
+          if (!optionSelected && option.default) {
+            price -= option.price;
+          }
+          // other cases -> no change
+        }
+      }
+
+      /* NEW: write the final price to the DOM */
+      thisProduct.priceElem.innerHTML = price;
     }
   }
 

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<meta charset="UTF-8" >
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" >
-		<meta http-equiv="X-UA-Compatible" content="ie=edge" >
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="ie=edge">
 		<title>Pizzeria</title>
 		<link
 			href="https://fonts.googleapis.com/css?family=Lato:400,300i,700%7COswald:300,500,700&amp;subset=latin-ext"
@@ -13,7 +13,7 @@
 			href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
 			rel="stylesheet"
 		>
-		<link rel="stylesheet" href="css/style.css" >
+		<link rel="stylesheet" href="css/style.css">
 	</head>
 	<body>
 		<header class="header">
@@ -54,7 +54,7 @@
 									</li>
 								</ul>
 								<div class="cart__order-confirmation">
-									<input type="tel" name="phone" placeholder="Your phone" >
+									<input type="tel" name="phone" placeholder="Your phone">
 									<input
 										type="text"
 										name="address"
@@ -72,24 +72,24 @@
 		<div id="product-list" class="product-list container"></div>
 
 		<script id="template-menu-product" type="text/x-handlebars-template">
-			<article class="product"> <!-- product -->
+			<article class="product">
 
 			    <header class="product__header">
 			      <h3 class="product__name no-spacing">{{ name }} <i class="fas fa-chevron-down product__icon"></i></h3>
 			      <p class="product__base-price no-spacing">${{ price }}</p>
 			    </header>
-			    <div class="product__description"> <!-- description -->
+			    <div class="product__description">
 			      <p>{{{ description }}}</p>
-			    </div> <!-- .description -->
-			    <div class="product__wrapper"> <!-- details -->
+			    </div>
+			    <div class="product__wrapper">
 			      <form class="product__order">
-			        <ul class="product__params"> <!-- params -->
+			        <ul class="product__params">
 			          {{#each params as |param paramId| }}
 			          {{#ifEquals type "checkboxes"}}
-			          <li> <!-- checkboxes -->
+			          <li>
 			            <h3 class="product__params-title">{{{ label }}}</h3>
 			            {{#each options}}
-			            <div class="checkbox"> <!-- checkbox -->
+			            <div class="checkbox">
 			              <label>
 			                <input type="checkbox" name="{{ paramId }}" value="{{ @key }}" id="{{ @key }}" {{#if default}}checked{{/if}}>
 			                <span class="checkbox__checkmark"></span>
@@ -100,10 +100,10 @@
 			          </li>
 			          {{/ifEquals}}
 			          {{#ifEquals type "radios"}}
-			          <li> <!-- radios -->
+			          <li>
 			            <h3 class="product__params-title">{{{ label }}}</h3>
 			            {{#each options}}
-			            <div class="checkbox checkbox--round"> <!-- radio -->
+			            <div class="checkbox checkbox--round">
 			              <label>
 			                {{{ label }}} (${{{ price }}})
 			                <input type="radio" name="{{ paramId }}" value="{{ @key }}" id="{{ @key }}" {{#if default}}checked{{/if}}>
@@ -114,7 +114,7 @@
 			          </li>
 			          {{/ifEquals}}
 			          {{#ifEquals type "select"}}
-			          <li> <!-- select -->
+			          <li>
 			            <h3 class="product__params-title">{{{ label }}}</h3>
 			            <select name="{{ paramId }}">
 			              {{#each options}}
@@ -125,29 +125,57 @@
 			          {{/ifEquals}}
 			          {{/each}}
 			        </ul>
-			        <div class="amount"> <!-- controls -->
-			          <div class="widget-amount"> <!-- widget-amount -->
+			        <div class="amount">
+			          <div class="widget-amount">
 			            <h3 class="product__params-title">Select quantity</h3>
 			            <a class="btn-quantity" href="#less"><i class="fas fa-minus"></i></a>
-			            <input type="text" name="amount" >
+			            <input type="text" name="amount">
 			            <a class="btn-quantity" href="#more"><i class="fas fa-plus"></i></a>
 			          </div>
 			          <p class="product__total-price">
 			            Total: $<span class="price">{{{ price }}}</span>
 			          </p>
-			          <div> <!-- add-to-cart -->
+			          <div>
 			            <a class="btn-primary" href="#add-to-cart">Add to cart</a>
 			          </div>
 			        </div>
 			      </form>
-			      <div class="product__images {{ class }}"> <!-- images -->
+			      <div class="product__images {{ class }}">
 			        {{#each images}}
 			        {{{ this }}}
 			        {{/each}}
 			      </div>
 			    </div>
 
-			</article> <!-- .product -->
+			</article>
+		</script>
+
+		<script id="template-cart-product" type="text/x-handlebars-template">
+			<li>
+				<div class="widget-amount">
+					<a class="btn-quantity btn-quantity--lt" href="#less"><i class="fas fa-minus"></i></a>
+					<input class="amount" type="text" value="{{ amount }}">
+					<a class="btn-quantity btn-quantity--lt" href="#more"><i class="fas fa-plus"></i></a>
+				</div>
+				<div class="cart__product">
+					<div class="cart__product-header">
+						<span>{{ name }}</span>
+						<span>$<strong class="cart__product-price">{{ price }}</strong></span>
+					</div>
+					<ul class="cart__product-details no-spacing">
+						{{#each params}}
+							<li>
+								<span class="cart__product-details-label">{{ label }}:</span>
+								<span>{{#joinValues options}}, {{/joinValues}}</span>
+							</li>
+						{{/each}}
+					</ul>
+				</div>
+				<ul class="cart__action-buttons no-spacing">
+					<li><a href="#edit">Edit<i class="fas fa-pencil-alt"></i></a></li>
+					<li><a href="#remove">Remove<i class="fas fa-trash-alt"></i></a></li>
+				</ul>
+			</li>
 		</script>
 
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.1.0/handlebars.min.js"></script>

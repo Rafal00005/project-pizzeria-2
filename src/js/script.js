@@ -201,6 +201,18 @@
       amountWidget: '.widget-amount',
       cartButton: '[href="#add-to-cart"]',
     },
+    cart: {
+      productList: '.cart__order-summary',
+      toggleTrigger: '.cart__summary',
+      totalNumber: `.cart__total-number`,
+      totalPrice: `.cart__total-price strong`,
+      subtotalPrice: `.cart__order-price-sum`,
+      deliveryFee: `.cart__order-price-sum`,
+      form: '.cart__order',
+      formSubmit: '.cart__order [type="submit"]',
+      phone: '[name="phone"]',
+      address: '[name="address"]',
+    },
     widgets: {
       amount: {
         input: 'input[name="amount"]',
@@ -215,6 +227,9 @@
     menuProduct: {
       wrapperActive: 'active',
       imageVisible: 'active',
+    },
+    cart: {
+      wrapperActive: 'active',
     },
   };
 
@@ -242,12 +257,11 @@
       /* collect inner elements of the widget (+, −, input) */
       thisWidget.getElements(element);
 
-     // NEW: if input has a value, use it; otherwise use default from settings
-     const startValue = thisWidget.input.value !== '' 
-      ? thisWidget.input.value 
-      : settings.amountWidget.defaultValue;
+      // NEW: if input has a value, use it; otherwise use default from settings
+      const startValue = thisWidget.input.value !== '' 
+        ? thisWidget.input.value 
+        : settings.amountWidget.defaultValue;
       thisWidget.setValue(startValue);
-
 
       /* wire up widget event listeners */
       thisWidget.initActions();
@@ -298,12 +312,12 @@
       thisWidget.input.value = thisWidget.value;
     }
 
-     /* NEW: emit a custom event so Product knows about valid changes */
-      announce() {
-       const thisWidget = this;
-       const event = new Event('updated');   
-       thisWidget.element.dispatchEvent(event);
-      }
+    /* NEW: emit a custom event so Product knows about valid changes */
+    announce() {
+      const thisWidget = this;
+      const event = new Event('updated');   
+      thisWidget.element.dispatchEvent(event);
+    }
 
     /* set up event listeners for input and +/- links */
     initActions() {
@@ -328,6 +342,37 @@
     }
   }
 
+  // NEW 8.3: Cart class
+  class Cart {
+    constructor(element) {
+      const thisCart = this;
+
+      thisCart.products = [];
+
+      thisCart.getElements(element);
+      thisCart.initActions();
+
+      console.log('new Cart', thisCart);
+    }
+
+    getElements(element) {
+      const thisCart = this;
+
+      thisCart.dom = {};
+
+      thisCart.dom.wrapper = element;
+      thisCart.dom.toggleTrigger = thisCart.dom.wrapper.querySelector(select.cart.toggleTrigger);
+    }
+
+    initActions() {
+      const thisCart = this;
+
+      thisCart.dom.toggleTrigger.addEventListener('click', function() {
+        thisCart.dom.wrapper.classList.toggle(classNames.cart.wrapperActive);
+      });
+    }
+  }
+
   // Main application object
   const app = {
     // Load initial data into app.data from the global dataSource
@@ -347,6 +392,14 @@
       }
     },
 
+    // NEW 8.3: Initialize cart
+    initCart: function() {
+      const thisApp = this;
+      
+      const cartElem = document.querySelector(select.containerOf.cart);
+      thisApp.cart = new Cart(cartElem);
+    },
+
     // App entry point: log basics, then load data and build the menu
     init: function () {
       const thisApp = this;
@@ -359,6 +412,7 @@
       // Order matters: first load data, then create products
       thisApp.initData();
       thisApp.initMenu();
+      thisApp.initCart();
     },
   };
 

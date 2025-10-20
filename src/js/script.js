@@ -234,7 +234,7 @@
 			productList: '.cart__order-summary',
 			toggleTrigger: '.cart__summary',
 			totalNumber: '.cart__total-number',
-			totalPrice: '.cart__total-price strong',
+			totalPrice: '.cart__total-price strong, .cart__order-price li:nth-child(3) .cart__order-price-sum strong',
 			// FIXED: Using nth-child to target specific price elements
 			subtotalPrice: '.cart__order-price li:nth-child(1) .cart__order-price-sum',
 			deliveryFee: '.cart__order-price li:nth-child(2) .cart__order-price-sum',

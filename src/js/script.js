@@ -109,7 +109,7 @@
 			const thisProduct = this;
 			const formData = utils.serializeFormToObject(thisProduct.form);
 			let price = thisProduct.data.price;
-			
+
 			// Calculate price based on selected options
 			for (let paramId in thisProduct.data.params) {
 				const param = thisProduct.data.params[paramId];
@@ -179,7 +179,7 @@
 			const thisProduct = this;
 			const formData = utils.serializeFormToObject(thisProduct.form);
 			const params = {};
-			
+
 			// Collect selected options
 			for (let paramId in thisProduct.data.params) {
 				const param = thisProduct.data.params[paramId];
@@ -234,9 +234,11 @@
 			productList: '.cart__order-summary',
 			toggleTrigger: '.cart__summary',
 			totalNumber: '.cart__total-number',
-			totalPrice: '.cart__total-price strong, .cart__order-price li:nth-child(3) .cart__order-price-sum strong',
+			totalPrice:
+				'.cart__total-price strong, .cart__order-price li:nth-child(3) .cart__order-price-sum strong',
 			// FIXED: Using nth-child to target specific price elements
-			subtotalPrice: '.cart__order-price li:nth-child(1) .cart__order-price-sum',
+			subtotalPrice:
+				'.cart__order-price li:nth-child(1) .cart__order-price-sum',
 			deliveryFee: '.cart__order-price li:nth-child(2) .cart__order-price-sum',
 			form: '.cart__order',
 			formSubmit: '.cart__order [type="submit"]',
@@ -326,7 +328,7 @@
 			const newValue = parseInt(value);
 			const min = settings.amountWidget.defaultMin;
 			const max = settings.amountWidget.defaultMax;
-			
+
 			// Validate and set new value
 			if (
 				!isNaN(newValue) &&
@@ -471,9 +473,10 @@
 			thisCartProduct.priceSingle = menuProduct.priceSingle;
 			thisCartProduct.price = menuProduct.price;
 			thisCartProduct.params = menuProduct.params;
-			
+
 			thisCartProduct.getElements(element);
 			thisCartProduct.initAmountWidget();
+			thisCartProduct.initActions(); // ← DODAJ TO!
 		}
 
 		getElements(element) {
@@ -508,6 +511,35 @@
 				thisCartProduct.price =
 					thisCartProduct.priceSingle * thisCartProduct.amount;
 				thisCartProduct.dom.price.innerHTML = thisCartProduct.price;
+			});
+		}
+
+		remove() {
+			const thisCartProduct = this;
+			// Create custom event with product reference in detail
+			const event = new CustomEvent('remove', {
+				bubbles: true,
+				detail: {
+					cartProduct: thisCartProduct,
+				},
+			});
+			thisCartProduct.dom.wrapper.dispatchEvent(event);
+			console.log('Remove called for:', thisCartProduct.name);
+		}
+
+		initActions() {
+			const thisCartProduct = this;
+
+			// Edit button - prevent default action
+			thisCartProduct.dom.edit.addEventListener('click', function (event) {
+				event.preventDefault();
+				// TODO: Add edit functionality later
+			});
+
+			// Remove button - call remove method
+			thisCartProduct.dom.remove.addEventListener('click', function (event) {
+				event.preventDefault();
+				thisCartProduct.remove();
 			});
 		}
 	}

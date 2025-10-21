@@ -1,6 +1,6 @@
-/* global Handlebars, utils, dataSource */
+/* global Handlebars, utils */
 
-{
+
 	('use strict');
 
 	// Handlebars helper for joining array values
@@ -281,7 +281,14 @@
 		},
 		cart: {
 			defaultDeliveryFee: 20,
+
 		},
+    // Configuration API
+    db: {
+    url: '//localhost:3131',
+    products: 'products',
+    orders: 'orders',
+    },
 	};
 
 	/* Handlebars templates compilation */
@@ -543,36 +550,59 @@
 			});
 		}
 	}
+/* Main app object - initializes the application */
+const app = {
+  initData: function() {
+    const thisApp = this;
+    
+    // Initialize empty data object
+    thisApp.data = {};
+    
+    // Build API endpoint URL
+    const url = settings.db.url + '/' + settings.db.products;
+    
+    // Fetch products from API asynchronously
+    fetch(url)
+      .then(function(rawResponse) {
+        // Convert response to JSON
+        return rawResponse.json();
+      })
+      .then(function(parsedResponse) {
+        console.log('parsedResponse', parsedResponse);
+        
+        // Save parsed response as thisApp.data.products
+        thisApp.data.products = parsedResponse;
+        
+        // Execute initMenu method after data is loaded
+        thisApp.initMenu();
+      });
+    
+    // This log runs before fetch completes (asynchronous)
+    console.log('thisApp.data', JSON.stringify(thisApp.data));
+  },
+  
+  initMenu: function() {
+    const thisApp = this;
+    // Create Product instances from API data
+    for(let productData of thisApp.data.products) {
+      new Product(productData.id, productData);
+    }
+  },
+  
+  initCart: function() {
+    const thisApp = this;
+    // Initialize shopping cart
+    const cartElem = document.querySelector(select.containerOf.cart);
+    thisApp.cart = new Cart(cartElem);
+  },
+  
+  init: function() {
+    const thisApp = this;
+    // Initialize all app components
+    thisApp.initData();
+    thisApp.initCart();
+  },
+}; // ← TUTAJ kończy się obiekt app (średnik!)
 
-	/* Main app object - initializes the application */
-	const app = {
-		initData: function () {
-			const thisApp = this;
-			// Load product data
-			thisApp.data = dataSource;
-		},
-		initMenu: function () {
-			const thisApp = this;
-			// Create Product instances for each product in data
-			for (let productId in thisApp.data.products) {
-				new Product(productId, thisApp.data.products[productId]);
-			}
-		},
-		initCart: function () {
-			const thisApp = this;
-			// Initialize shopping cart
-			const cartElem = document.querySelector(select.containerOf.cart);
-			thisApp.cart = new Cart(cartElem);
-		},
-		init: function () {
-			const thisApp = this;
-			// Initialize all app components
-			thisApp.initData();
-			thisApp.initMenu();
-			thisApp.initCart();
-		},
-	};
-
-	// Start the app
-	app.init();
-}
+// Start the app
+app.init(); 

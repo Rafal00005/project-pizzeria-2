@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta http-equiv="X-UA-Compatible" content="ie=edge">
+		<meta charset="UTF-8" >
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" >
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" >
 		<title>Pizzeria</title>
 		<link
 			href="https://fonts.googleapis.com/css?family=Lato:400,300i,700%7COswald:300,500,700&amp;subset=latin-ext"
@@ -13,7 +13,7 @@
 			href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
 			rel="stylesheet"
 		>
-		<link rel="stylesheet" href="css/style.css">
+		<link rel="stylesheet" href="css/style.css" >
 	</head>
 	<body>
 		<header class="header">
@@ -54,7 +54,7 @@
 									</li>
 								</ul>
 								<div class="cart__order-confirmation">
-									<input type="tel" name="phone" placeholder="Your phone">
+									<input type="tel" name="phone" placeholder="Your phone" >
 									<input
 										type="text"
 										name="address"
@@ -152,35 +152,39 @@
 
 		<script id="template-cart-product" type="text/x-handlebars-template">
 			<li>
-				<div class="widget-amount">
-					<a class="btn-quantity btn-quantity--lt" href="#less"><i class="fas fa-minus"></i></a>
-					<input class="amount" type="text" value="{{ amount }}">
-					<a class="btn-quantity btn-quantity--lt" href="#more"><i class="fas fa-plus"></i></a>
+				<div class='widget-amount'>
+					<a class='btn-quantity btn-quantity--lt' href='#less'><i
+							class='fas fa-minus'
+						></i></a>
+					<input class='amount' type='text' value='{{amount}}' />
+					<a class='btn-quantity btn-quantity--lt' href='#more'><i
+							class='fas fa-plus'
+						></i></a>
 				</div>
-				<div class="cart__product">
-					<div class="cart__product-header">
-						<span>{{ name }}</span>
-						<span>$<strong class="cart__product-price">{{ price }}</strong></span>
+				<div class='cart__product'>
+					<div class='cart__product-header'>
+						<span>{{name}}</span>
+						<span>$<strong class='cart__product-price'>{{price}}</strong></span>
 					</div>
-					<ul class="cart__product-details no-spacing">
+					<ul class='cart__product-details no-spacing'>
 						{{#each params}}
 							<li>
-								<span class="cart__product-details-label">{{ label }}:</span>
+								<span class='cart__product-details-label'>{{label}}:</span>
 								<span>{{#joinValues options}}, {{/joinValues}}</span>
 							</li>
 						{{/each}}
 					</ul>
 				</div>
-				<ul class="cart__action-buttons no-spacing">
-					<li><a href="#edit">Edit<i class="fas fa-pencil-alt"></i></a></li>
-					<li><a href="#remove">Remove<i class="fas fa-trash-alt"></i></a></li>
+				<ul class='cart__action-buttons no-spacing'>
+					<li><a href='#edit'>Edit<i class='fas fa-pencil-alt'></i></a></li>
+					<li><a href='#remove'>Remove<i class='fas fa-trash-alt'></i></a></li>
 				</ul>
 			</li>
 		</script>
 
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.1.0/handlebars.min.js"></script>
 		<script src="js/functions.js"></script>
-		<script src="js/data.js"></script>
+
 		<script src="js/script.js"></script>
 	</body>
 </html>

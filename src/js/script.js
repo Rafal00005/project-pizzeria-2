@@ -202,7 +202,14 @@ class Product {
 	addToCart() {
 		const thisProduct = this;
 		// Add product to cart
-		app.cart.add(thisProduct.prepareCartProduct());
+		//app.cart.add(thisProduct.prepareCartProduct());
+		const event = new CustomEvent('add-to-cart', {
+			bubbles: true,
+			detail: {
+				product: thisProduct.prepareCartProduct(),
+			},
+		});
+		thisProduct.element.dispatchEvent(event);
 	}
 }
 
@@ -409,7 +416,9 @@ class Cart {
 		);
 		thisCart.dom.form = thisCart.dom.wrapper.querySelector(select.cart.form);
 		thisCart.dom.phone = thisCart.dom.wrapper.querySelector(select.cart.phone);
-		thisCart.dom.address = thisCart.dom.wrapper.querySelector(select.cart.address);
+		thisCart.dom.address = thisCart.dom.wrapper.querySelector(
+			select.cart.address
+		);
 	}
 
 	initActions() {
@@ -492,9 +501,9 @@ class Cart {
 	// Send order to API
 	sendOrder() {
 		const thisCart = this;
-		
+
 		const url = settings.db.url + '/' + settings.db.orders;
-		
+
 		const payload = {
 			address: thisCart.dom.address.value,
 			phone: thisCart.dom.phone.value,
@@ -502,13 +511,13 @@ class Cart {
 			subtotalPrice: thisCart.subtotalPrice,
 			totalNumber: thisCart.totalNumber,
 			deliveryFee: settings.cart.defaultDeliveryFee,
-			products: []
+			products: [],
 		};
-		
-		for(let prod of thisCart.products) {
+
+		for (let prod of thisCart.products) {
 			payload.products.push(prod.getData());
 		}
-		
+
 		const options = {
 			method: 'POST',
 			headers: {
@@ -516,12 +525,12 @@ class Cart {
 			},
 			body: JSON.stringify(payload),
 		};
-		
+
 		fetch(url, options)
-			.then(function(response) {
+			.then(function (response) {
 				return response.json();
 			})
-			.then(function(parsedResponse) {
+			.then(function (parsedResponse) {
 				console.log('Order sent successfully:', parsedResponse);
 			});
 	}
@@ -631,7 +640,7 @@ const app = {
 		const url = settings.db.url + '/' + settings.db.products;
 
 		// Fetch products from API asynchronously
-		fetch(url,)
+		fetch(url)
 			.then(function (rawResponse) {
 				// Convert response to JSON
 				return rawResponse.json();
@@ -657,12 +666,17 @@ const app = {
 			new Product(productData.id, productData);
 		}
 	},
-
 	initCart: function () {
 		const thisApp = this;
 		// Initialize shopping cart
 		const cartElem = document.querySelector(select.containerOf.cart);
 		thisApp.cart = new Cart(cartElem);
+
+		// Listen for add-to-cart events
+		const productList = document.querySelector(select.containerOf.menu);
+		productList.addEventListener('add-to-cart', function (event) {
+			thisApp.cart.add(event.detail.product);
+		});
 	},
 
 	init: function () {

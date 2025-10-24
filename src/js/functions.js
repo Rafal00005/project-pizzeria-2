@@ -1,41 +1,41 @@
 /* global Handlebars */
+/* eslint-disable no-unused-vars */
 
-const utils = {}; // eslint-disable-line no-unused-vars
+(function (global) {
+  const utils = global.utils || (global.utils = {});
 
-utils.createDOMFromHTML = function(htmlString) {
-  let div = document.createElement('div');
-  div.innerHTML = htmlString.trim();
-  return div.firstChild;
-};
+  utils.queryParams = function (params) {
+    return Object.keys(params)
+      .map((k) => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))
+      .join('&');
+  };
 
-utils.createPropIfUndefined = function(obj, key, value = []){
-  if(!obj.hasOwnProperty(key)){
-    obj[key] = value;
-  }
-};
+  utils.numberToHour = function (number) {
+    return (
+      (Math.floor(number) % 24) + ':' + ((number % 1) * 60 + '').padStart(2, '0')
+    );
+  };
 
-utils.serializeFormToObject = function(form){
-  let output = {};
-  if (typeof form == 'object' && form.nodeName == 'FORM') {
-    for (let field of form.elements) {
-      if (field.name && !field.disabled && field.type != 'file' && field.type != 'reset' && field.type != 'submit' && field.type != 'button') {
-        if (field.type == 'select-multiple') {
-          for (let option of field.options) {
-            if(option.selected) {
-              utils.createPropIfUndefined(output, field.name);
-              output[field.name].push(option.value);
-            }
-          }
-        } else if ((field.type != 'checkbox' && field.type != 'radio') || field.checked) {
-          utils.createPropIfUndefined(output, field.name);
-          output[field.name].push(field.value);
-        } else if(!output[field.name]) output[field.name] = [];
-      }
-    }
-  }
-  return output;
-};
+  utils.hourToNumber = function (hour) {
+    const parts = hour.split(':');
+    return parseInt(parts[0]) + parseInt(parts[1]) / 60;
+  };
 
-Handlebars.registerHelper('ifEquals', function(arg1, arg2, options) {
-  return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
-});
+  utils.dateToStr = function (dateObj) {
+    return dateObj.toISOString().slice(0, 10);
+  };
+
+  utils.addDays = function (dateStr, days) {
+    const dateObj = new Date(dateStr);
+    dateObj.setDate(dateObj.getDate() + days);
+    return dateObj;
+  };
+
+  Handlebars.registerHelper('ifEquals', function (a, b, options) {
+    return a == b ? options.fn(this) : options.inverse(this);
+  });
+
+  Handlebars.registerHelper('joinValues', function (input, options) {
+    return Object.values(input).join(options.hash.separator);
+  });
+})(window);

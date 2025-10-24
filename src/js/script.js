@@ -1,6 +1,6 @@
 /* global Handlebars, utils */
 
-('use strict');
+'use strict';
 
 // Handlebars helper for joining array values
 Handlebars.registerHelper('joinValues', function (input, options) {
@@ -218,10 +218,13 @@ const select = {
 	templateOf: {
 		menuProduct: '#template-menu-product',
 		cartProduct: '#template-cart-product',
+		bookingWidget: '#template-booking-widget',
 	},
 	containerOf: {
 		menu: '#product-list',
 		cart: '#cart',
+		pages: '#pages',
+		booking: '.booking-wrapper',
 	},
 	all: {
 		menuProducts: '#product-list > .product',
@@ -242,7 +245,6 @@ const select = {
 		totalNumber: '.cart__total-number',
 		totalPrice:
 			'.cart__total-price strong, .cart__order-price li:nth-child(3) .cart__order-price-sum strong',
-		// FIXED: Using nth-child to target specific price elements
 		subtotalPrice: '.cart__order-price li:nth-child(1) .cart__order-price-sum',
 		deliveryFee: '.cart__order-price li:nth-child(2) .cart__order-price-sum',
 		form: '.cart__order',
@@ -258,15 +260,31 @@ const select = {
 	},
 	widgets: {
 		amount: {
-			// FIXED: Universal selector works in both product and cart
 			input: 'input[type="text"]',
 			linkDecrease: 'a[href="#less"]',
 			linkIncrease: 'a[href="#more"]',
 		},
+		datePicker: {
+			wrapper: '.date-picker',
+			input: 'input[name="date"]',
+		},
+		hourPicker: {
+			wrapper: '.hour-picker',
+			input: 'input[type="range"]',
+			output: '.output',
+		},
+	},
+	booking: {
+		peopleAmount: '.people-amount',
+		hoursAmount: '.hours-amount',
+		tables: '.floor-plan .table',
+	},
+	nav: {
+		links: '.main-nav a',
 	},
 };
 
-/* CSS class names used in the app */
+/* Class names object - stores CSS class names */
 const classNames = {
 	menuProduct: {
 		wrapperActive: 'active',
@@ -275,23 +293,48 @@ const classNames = {
 	cart: {
 		wrapperActive: 'active',
 	},
+	booking: {
+		loading: 'loading',
+		tableBooked: 'booked',
+	},
+	nav: {
+		active: 'active',
+	},
+	pages: {
+		active: 'active',
+	},
 };
 
-/* App settings and configuration */
+/* Settings */
 const settings = {
 	amountWidget: {
 		defaultValue: 1,
-		defaultMin: 0,
-		defaultMax: 10,
+		defaultMin: 1,
+		defaultMax: 9,
 	},
 	cart: {
 		defaultDeliveryFee: 20,
 	},
-	// Configuration API
 	db: {
 		url: '//localhost:3131',
 		products: 'products',
 		orders: 'orders',
+		bookings: 'bookings',
+		events: 'events',
+		dateStartParamKey: 'date_gte',
+		dateEndParamKey: 'date_lte',
+		notRepeatParam: 'repeat=false',
+		repeatParam: 'repeat_ne=false',
+	},
+	hours: {
+		open: 12,
+		close: 24,
+	},
+	datePicker: {
+		maxDaysInFuture: 14,
+	},
+	booking: {
+		tableIdAttribute: 'data-table',
 	},
 };
 
@@ -303,8 +346,10 @@ const templates = {
 	cartProduct: Handlebars.compile(
 		document.querySelector(select.templateOf.cartProduct).innerHTML
 	),
+	bookingWidget: Handlebars.compile(
+		document.querySelector(select.templateOf.bookingWidget).innerHTML
+	),
 };
-
 /* AmountWidget class - handles quantity input with +/- buttons */
 class AmountWidget {
 	constructor(element) {
@@ -649,7 +694,13 @@ const app = {
 				console.log('parsedResponse', parsedResponse);
 
 				// Save parsed response as thisApp.data.products
-				thisApp.data.products = parsedResponse;
+				// Convert array to object with id keys
+				thisApp.data.products = {};
+				for (let product of parsedResponse) {
+					thisApp.data.products[product.id] = product;
+				}
+
+				console.log('thisApp.data', thisApp.data);
 
 				// Execute initMenu method after data is loaded
 				thisApp.initMenu();
@@ -662,8 +713,8 @@ const app = {
 	initMenu: function () {
 		const thisApp = this;
 		// Create Product instances from API data
-		for (let productData of thisApp.data.products) {
-			new Product(productData.id, productData);
+		for (let productId in thisApp.data.products) {
+			new Product(productId, thisApp.data.products[productId]);
 		}
 	},
 	initCart: function () {
@@ -679,13 +730,59 @@ const app = {
 		});
 	},
 
+	initPages: function () {
+		const thisApp = this;
+		
+		thisApp.pages = document.querySelector(select.containerOf.pages).children;
+		thisApp.navLinks = document.querySelectorAll(select.nav.links);
+		
+		const idFromHash = window.location.hash.replace('#/', '');
+		
+		let pageMatchingHash = thisApp.pages[0].id;
+		
+		for (let page of thisApp.pages) {
+			if (page.id == idFromHash) {
+				pageMatchingHash = page.id;
+				break;
+			}
+		}
+		
+		thisApp.activatePage(pageMatchingHash);
+		
+		for (let link of thisApp.navLinks) {
+			link.addEventListener('click', function (event) {
+				const clickedElement = this;
+				event.preventDefault();
+				
+				const id = clickedElement.getAttribute('href').replace('#', '');
+				thisApp.activatePage(id);
+				window.location.hash = '#/' + id;
+			});
+		}
+	},
+
+	activatePage: function (pageId) {
+		const thisApp = this;
+		
+		for (let page of thisApp.pages) {
+			page.classList.toggle(classNames.pages.active, page.id == pageId);
+		}
+		
+		for (let link of thisApp.navLinks) {
+			link.classList.toggle(
+				classNames.nav.active,
+				link.getAttribute('href') == '#' + pageId
+			);
+		}
+	},
+
 	init: function () {
 		const thisApp = this;
 		// Initialize all app components
+		thisApp.initPages();
 		thisApp.initData();
 		thisApp.initCart();
 	},
-}; // ← TUTAJ kończy się obiekt app (średnik!)
-
+};
 // Start the app
 app.init();

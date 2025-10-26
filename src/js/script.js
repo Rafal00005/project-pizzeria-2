@@ -1,6 +1,10 @@
+import DatePicker from './components/DatePicker.js';
+import HourPicker from './components/HourPicker.js';
+import BaseWidget from './components/BaseWidget.js';
+
 /* global Handlebars, utils */
 
-'use strict';
+('use strict');
 
 // Handlebars helper for joining array values
 Handlebars.registerHelper('joinValues', function (input, options) {
@@ -350,23 +354,29 @@ const templates = {
 		document.querySelector(select.templateOf.bookingWidget).innerHTML
 	),
 };
-/* AmountWidget class - handles quantity input with +/- buttons */
-class AmountWidget {
+// Expose config and helpers globally for widgets (DatePicker / HourPicker)
+window.select = select;
+window.settings = settings;
+window.utils = utils;
+window.templates = templates;
+/* AmountWidget - dziedziczy po BaseWidget */
+class AmountWidget extends BaseWidget {
 	constructor(element) {
+		super(element, settings.amountWidget.defaultValue);
 		const thisWidget = this;
 		thisWidget.getElements(element);
-		// Set initial value from input or use default
+
 		const startValue =
-			thisWidget.input.value !== ''
+			thisWidget.input && thisWidget.input.value !== ''
 				? thisWidget.input.value
 				: settings.amountWidget.defaultValue;
+
 		thisWidget.setValue(startValue);
 		thisWidget.initActions();
 	}
 
 	getElements(element) {
 		const thisWidget = this;
-		// Get references to widget elements
 		thisWidget.element = element;
 		thisWidget.input = thisWidget.element.querySelector(
 			select.widgets.amount.input
@@ -379,47 +389,29 @@ class AmountWidget {
 		);
 	}
 
-	setValue(value) {
-		const thisWidget = this;
-		const newValue = parseInt(value);
+	// nadpisania specyficzne dla liczb
+	parseValue(value) {
+		return parseInt(value);
+	}
+	isValid(value) {
 		const min = settings.amountWidget.defaultMin;
 		const max = settings.amountWidget.defaultMax;
-
-		// Validate and set new value
-		if (
-			!isNaN(newValue) &&
-			newValue !== thisWidget.value &&
-			newValue >= min &&
-			newValue <= max
-		) {
-			thisWidget.value = newValue;
-			thisWidget.announce();
-		}
-		// Update input display
-		thisWidget.input.value = thisWidget.value;
+		return !isNaN(value) && value >= min && value <= max;
 	}
-
-	announce() {
+	renderValue() {
 		const thisWidget = this;
-		// Create custom event with bubbling enabled
-		const event = new CustomEvent('updated', {
-			bubbles: true,
-		});
-		thisWidget.element.dispatchEvent(event);
+		if (thisWidget.input) thisWidget.input.value = thisWidget.value;
 	}
 
 	initActions() {
 		const thisWidget = this;
-		// Handle manual input change
 		thisWidget.input.addEventListener('change', function () {
 			thisWidget.setValue(thisWidget.input.value);
 		});
-		// Handle decrease button click
 		thisWidget.linkDecrease.addEventListener('click', function (event) {
 			event.preventDefault();
 			thisWidget.setValue(thisWidget.value - 1);
 		});
-		// Handle increase button click
 		thisWidget.linkIncrease.addEventListener('click', function (event) {
 			event.preventDefault();
 			thisWidget.setValue(thisWidget.value + 1);
@@ -447,23 +439,24 @@ class Cart {
 		thisCart.dom.productList = thisCart.dom.wrapper.querySelector(
 			select.cart.productList
 		);
+		// Get all elements matching totalPrice selector
+		thisCart.dom.totalPrice = thisCart.dom.wrapper.querySelectorAll(
+			select.cart.totalPrice
+		);
 		thisCart.dom.deliveryFee = thisCart.dom.wrapper.querySelector(
 			select.cart.deliveryFee
 		);
 		thisCart.dom.subtotalPrice = thisCart.dom.wrapper.querySelector(
 			select.cart.subtotalPrice
 		);
-		thisCart.dom.totalPrice = thisCart.dom.wrapper.querySelectorAll(
-			select.cart.totalPrice
-		);
 		thisCart.dom.totalNumber = thisCart.dom.wrapper.querySelector(
 			select.cart.totalNumber
 		);
 		thisCart.dom.form = thisCart.dom.wrapper.querySelector(select.cart.form);
-		thisCart.dom.phone = thisCart.dom.wrapper.querySelector(select.cart.phone);
 		thisCart.dom.address = thisCart.dom.wrapper.querySelector(
 			select.cart.address
 		);
+		thisCart.dom.phone = thisCart.dom.wrapper.querySelector(select.cart.phone);
 	}
 
 	initActions() {
@@ -472,13 +465,17 @@ class Cart {
 		thisCart.dom.toggleTrigger.addEventListener('click', function () {
 			thisCart.dom.wrapper.classList.toggle(classNames.cart.wrapperActive);
 		});
-		// Update cart totals when product amount changes
+
+		// Update totals when any product amount changes
 		thisCart.dom.productList.addEventListener('updated', function () {
 			thisCart.update();
 		});
+
+		// Handle remove product event
 		thisCart.dom.productList.addEventListener('remove', function (event) {
 			thisCart.remove(event.detail.cartProduct);
 		});
+
 		// Handle form submission
 		thisCart.dom.form.addEventListener('submit', function (event) {
 			event.preventDefault();
@@ -491,11 +488,11 @@ class Cart {
 		// Generate HTML for cart product
 		const generatedHTML = templates.cartProduct(menuProduct);
 		const generatedDOM = utils.createDOMFromHTML(generatedHTML);
-		// Add product to cart list
+		// Add to DOM
 		thisCart.dom.productList.appendChild(generatedDOM);
-		// Create CartProduct instance and add to products array
+		// Create CartProduct instance
 		thisCart.products.push(new CartProduct(menuProduct, generatedDOM));
-		// Update cart totals
+		// Update totals
 		thisCart.update();
 	}
 
@@ -580,6 +577,7 @@ class Cart {
 			});
 	}
 }
+
 /* CartProduct class - handles individual product in cart */
 class CartProduct {
 	constructor(menuProduct, element) {
@@ -594,7 +592,7 @@ class CartProduct {
 
 		thisCartProduct.getElements(element);
 		thisCartProduct.initAmountWidget();
-		thisCartProduct.initActions(); // ← DODAJ TO!
+		thisCartProduct.initActions();
 	}
 
 	getElements(element) {
@@ -673,6 +671,51 @@ class CartProduct {
 		};
 	}
 }
+
+/* Booking - renderuje szablon i inicjuje widgety (data, godzina, people, hours) */
+class Booking {
+	constructor(bookingContainer) {
+		const thisBooking = this;
+		thisBooking.render(bookingContainer);
+		thisBooking.initWidgets();
+	}
+
+	render(bookingContainer) {
+		const thisBooking = this;
+		thisBooking.dom = {};
+		thisBooking.dom.wrapper = bookingContainer;
+
+		// render szablonu
+		thisBooking.dom.wrapper.innerHTML = templates.bookingWidget();
+
+		// referencje do wrapperów
+		thisBooking.dom.datePicker = thisBooking.dom.wrapper.querySelector(
+			select.widgets.datePicker.wrapper
+		);
+		thisBooking.dom.hourPicker = thisBooking.dom.wrapper.querySelector(
+			select.widgets.hourPicker.wrapper
+		);
+
+		// widżety ilości
+		thisBooking.dom.peopleAmount = thisBooking.dom.wrapper.querySelector(
+			select.booking.peopleAmount
+		);
+		thisBooking.dom.hoursAmount = thisBooking.dom.wrapper.querySelector(
+			select.booking.hoursAmount
+		);
+	}
+
+	initWidgets() {
+		const thisBooking = this;
+		if (thisBooking.dom.datePicker) new DatePicker(thisBooking.dom.datePicker);
+		if (thisBooking.dom.hourPicker) new HourPicker(thisBooking.dom.hourPicker);
+		if (thisBooking.dom.peopleAmount)
+			new AmountWidget(thisBooking.dom.peopleAmount);
+		if (thisBooking.dom.hoursAmount)
+			new AmountWidget(thisBooking.dom.hoursAmount);
+	}
+}
+
 /* Main app object - initializes the application */
 const app = {
 	initData: function () {
@@ -717,6 +760,7 @@ const app = {
 			new Product(productId, thisApp.data.products[productId]);
 		}
 	},
+
 	initCart: function () {
 		const thisApp = this;
 		// Initialize shopping cart
@@ -730,30 +774,38 @@ const app = {
 		});
 	},
 
+	initBooking: function () {
+		const thisApp = this;
+		const bookingContainer = document.querySelector(select.containerOf.booking);
+		if (bookingContainer) {
+			thisApp.booking = new Booking(bookingContainer);
+		}
+	},
+
 	initPages: function () {
 		const thisApp = this;
-		
+
 		thisApp.pages = document.querySelector(select.containerOf.pages).children;
 		thisApp.navLinks = document.querySelectorAll(select.nav.links);
-		
+
 		const idFromHash = window.location.hash.replace('#/', '');
-		
+
 		let pageMatchingHash = thisApp.pages[0].id;
-		
+
 		for (let page of thisApp.pages) {
 			if (page.id == idFromHash) {
 				pageMatchingHash = page.id;
 				break;
 			}
 		}
-		
+
 		thisApp.activatePage(pageMatchingHash);
-		
+
 		for (let link of thisApp.navLinks) {
 			link.addEventListener('click', function (event) {
 				const clickedElement = this;
 				event.preventDefault();
-				
+
 				const id = clickedElement.getAttribute('href').replace('#', '');
 				thisApp.activatePage(id);
 				window.location.hash = '#/' + id;
@@ -763,11 +815,11 @@ const app = {
 
 	activatePage: function (pageId) {
 		const thisApp = this;
-		
+
 		for (let page of thisApp.pages) {
 			page.classList.toggle(classNames.pages.active, page.id == pageId);
 		}
-		
+
 		for (let link of thisApp.navLinks) {
 			link.classList.toggle(
 				classNames.nav.active,
@@ -782,6 +834,7 @@ const app = {
 		thisApp.initPages();
 		thisApp.initData();
 		thisApp.initCart();
+		thisApp.initBooking();
 	},
 };
 // Start the app

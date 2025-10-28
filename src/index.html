@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta charset="UTF-8" >
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" >
 		<meta http-equiv="X-UA-Compatible" content="ie=edge">
 		<title>Pizzeria</title>
 		<link
@@ -13,9 +13,12 @@
 			href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
 			rel="stylesheet"
 		>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-        <link rel="stylesheet" href="vendor/range-slider.css">
-		<link rel="stylesheet" href="css/style.css">
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+		>
+		<link rel="stylesheet" href="vendor/range-slider.css" >
+		<link rel="stylesheet" href="css/style.css" >
 	</head>
 	<body>
 		<header class="header">
@@ -60,12 +63,12 @@
 									</li>
 								</ul>
 								<div class="cart__order-confirmation">
-									<input type="tel" name="phone" placeholder="Your phone">
+									<input type="tel" name="phone" placeholder="Your phone" />
 									<input
 										type="text"
 										name="address"
 										placeholder="Your address"
-									>
+									/>
 									<button type="submit" class="btn-secondary">Order</button>
 								</div>
 							</form>
@@ -92,7 +95,7 @@
 					<div class='time-picker'>
 						<div class='date-picker'>
 							<label class='booking-option-title'>Pick a date</label>
-							<input type='text' name='date'>
+							<input type='text' name='date' />
 						</div>
 						<div class='hour-picker range-slider'>
 							<div class='output'></div>
@@ -104,7 +107,7 @@
 								min='12'
 								max='24'
 								step='0.5'
-							>
+							/>
 						</div>
 					</div>
 					<div class='floor-plan'>
@@ -121,7 +124,7 @@
 								<a class='btn-quantity' href='#less'><i
 										class='fas fa-minus'
 									></i></a>
-								<input class='amount' type='text' name='people' value='1'>
+								<input class='amount' type='text' name='people' value='1' />
 								<a class='btn-quantity' href='#more'><i
 										class='fas fa-plus'
 									></i></a>
@@ -133,7 +136,7 @@
 								<a class='btn-quantity' href='#less'><i
 										class='fas fa-minus'
 									></i></a>
-								<input class='amount' type='text' name='hours' value='1'>
+								<input class='amount' type='text' name='hours' value='1' />
 								<a class='btn-quantity' href='#more'><i
 										class='fas fa-plus'
 									></i></a>
@@ -143,14 +146,14 @@
 							<span class='booking-option-title'>Starters</span>
 							<div class='checkbox'>
 								<label>
-									<input type='checkbox' name='starter' value='water'>
+									<input type='checkbox' name='starter' value='water' />
 									<span class='checkbox__checkmark'></span>
 									Water
 								</label>
 							</div>
 							<div class='checkbox'>
 								<label>
-									<input type='checkbox' name='starter' value='bread'>
+									<input type='checkbox' name='starter' value='bread' />
 									<span class='checkbox__checkmark'></span>
 									Bread
 								</label>
@@ -158,8 +161,8 @@
 						</div>
 					</div>
 					<div class='order-confirmation'>
-						<input type='tel' name='phone' placeholder='Your phone'>
-						<input type='text' name='address' placeholder='Your address'>
+						<input type='tel' name='phone' placeholder='Your phone' />
+						<input type='text' name='address' placeholder='Your address' />
 						<button type='submit' class='btn-secondary'>Book table</button>
 					</div>
 				</form>
@@ -251,7 +254,7 @@
 					<a class='btn-quantity btn-quantity--lt' href='#less'><i
 							class='fas fa-minus'
 						></i></a>
-					<input class='amount' type='text' value='{{amount}}'>
+					<input class='amount' type='text' value='{{amount}}' />
 					<a class='btn-quantity btn-quantity--lt' href='#more'><i
 							class='fas fa-plus'
 						></i></a>
@@ -278,10 +281,11 @@
 		</script>
 
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.1.0/handlebars.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-        <script src="vendor/range-slider.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+		<script src="vendor/range-slider.js"></script>
 		<script src="js/utils.js"></script>
-        <script src="js/functions.js"></script>
+		<script src="js/functions.js"></script>
+	
 		<script type="module" src="js/script.js"></script>
 	</body>
 </html>

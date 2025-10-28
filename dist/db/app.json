@@ -261,17 +261,73 @@
       "starters": [
         "lemonWater"
       ]
-    },
+    }
+  ],
+  "bookings": [
     {
-      "date": "2019-01-01",
-      "hour": "14:00",
+      "date": "2025-10-28",
+      "hour": "20:00",
       "table": 1,
       "duration": 2,
       "ppl": 2,
-      "starters": [],
-      "repeat": "daily",
-      "id": 6
+      "starters": [
+        "water"
+      ],
+      "phone": "222",
+      "address": "2222",
+      "id": 1
+    },
+    {
+      "date": "2025-11-01",
+      "hour": "19:30",
+      "table": 1,
+      "duration": 3,
+      "ppl": 3,
+      "starters": [
+        "water"
+      ],
+      "phone": "222",
+      "address": "2222",
+      "id": 2
+    },
+    {
+      "date": "2025-10-28",
+      "hour": "20:00",
+      "table": 1,
+      "duration": 2,
+      "ppl": 2,
+      "starters": [
+        "water"
+      ],
+      "phone": "222",
+      "address": "2222",
+      "id": 3
+    },
+    {
+      "date": "2025-11-01",
+      "hour": "19:30",
+      "table": 1,
+      "duration": 3,
+      "ppl": 3,
+      "starters": [
+        "water"
+      ],
+      "phone": "222",
+      "address": "2222",
+      "id": 4
+    },
+    {
+      "date": "2025-10-28",
+      "hour": "17:00",
+      "table": null,
+      "duration": 3,
+      "ppl": 2,
+      "starters": [
+        "water"
+      ],
+      "phone": "222",
+      "address": "ssss",
+      "id": 5
     }
-  ],
-  "bookings": []
+  ]
 }

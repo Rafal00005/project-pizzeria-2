@@ -675,6 +675,7 @@ class CartProduct {
 class Booking {
 	constructor(bookingContainer) {
 		const thisBooking = this;
+		thisBooking.selectedTable = null;
 		thisBooking.render(bookingContainer);
 		thisBooking.initWidgets();
 		thisBooking.getData();
@@ -684,33 +685,44 @@ class Booking {
 		const thisBooking = this;
 
 		// Prepare date parameters (from today to +14 days)
-		const startDateParam = settings.db.dateStartParamKey + '=' + utils.dateToStr(thisBooking.datePicker.minDate);
-		const endDateParam = settings.db.dateEndParamKey + '=' + utils.dateToStr(thisBooking.datePicker.maxDate);
+		const startDateParam =
+			settings.db.dateStartParamKey +
+			'=' +
+			utils.dateToStr(thisBooking.datePicker.minDate);
+		const endDateParam =
+			settings.db.dateEndParamKey +
+			'=' +
+			utils.dateToStr(thisBooking.datePicker.maxDate);
 
 		// Prepare parameters for each query
 		const params = {
-			booking: [
-				startDateParam,
-				endDateParam,
-			],
-			eventsCurrent: [
-				settings.db.notRepeatParam,
-				startDateParam,
-				endDateParam,
-			],
-			eventsRepeat: [
-				settings.db.repeatParam,
-				endDateParam,
-			],
+			booking: [startDateParam, endDateParam],
+			eventsCurrent: [settings.db.notRepeatParam, startDateParam, endDateParam],
+			eventsRepeat: [settings.db.repeatParam, endDateParam],
 		};
 
 		console.log('getData params', params);
 
 		// Build complete URLs
 		const urls = {
-			booking: settings.db.url + '/' + settings.db.bookings + '?' + params.booking.join('&'),
-			eventsCurrent: settings.db.url + '/' + settings.db.events + '?' + params.eventsCurrent.join('&'),
-			eventsRepeat: settings.db.url + '/' + settings.db.events + '?' + params.eventsRepeat.join('&'),
+			booking:
+				settings.db.url +
+				'/' +
+				settings.db.bookings +
+				'?' +
+				params.booking.join('&'),
+			eventsCurrent:
+				settings.db.url +
+				'/' +
+				settings.db.events +
+				'?' +
+				params.eventsCurrent.join('&'),
+			eventsRepeat:
+				settings.db.url +
+				'/' +
+				settings.db.events +
+				'?' +
+				params.eventsRepeat.join('&'),
 		};
 
 		console.log('getData urls', urls);
@@ -735,7 +747,7 @@ class Booking {
 				console.log('bookings', bookings);
 				console.log('eventsCurrent', eventsCurrent);
 				console.log('eventsRepeat', eventsRepeat);
-				
+
 				// Process fetched data
 				thisBooking.parseData(bookings, eventsCurrent, eventsRepeat);
 			});
@@ -763,8 +775,17 @@ class Booking {
 
 		for (let item of eventsRepeat) {
 			if (item.repeat == 'daily') {
-				for (let loopDate = minDate; loopDate <= maxDate; loopDate = utils.addDays(loopDate, 1)) {
-					thisBooking.makeBooked(utils.dateToStr(loopDate), item.hour, item.duration, item.table);
+				for (
+					let loopDate = minDate;
+					loopDate <= maxDate;
+					loopDate = utils.addDays(loopDate, 1)
+				) {
+					thisBooking.makeBooked(
+						utils.dateToStr(loopDate),
+						item.hour,
+						item.duration,
+						item.table
+					);
 				}
 			}
 		}
@@ -794,7 +815,11 @@ class Booking {
 		thisBooking.booked[date][startHour].push(table);
 
 		// Loop through all half-hour blocks for the duration
-		for (let hourBlock = startHour; hourBlock < startHour + duration; hourBlock += 0.5) {
+		for (
+			let hourBlock = startHour;
+			hourBlock < startHour + duration;
+			hourBlock += 0.5
+		) {
 			// If this hour block doesn't exist yet, create empty array
 			if (typeof thisBooking.booked[date][hourBlock] === 'undefined') {
 				thisBooking.booked[date][hourBlock] = [];
@@ -807,6 +832,13 @@ class Booking {
 
 	updateDOM() {
 		const thisBooking = this;
+		// Use event delegation: find the nearest ".table" element even if a child was clicked.
+
+		if (thisBooking.selectedTable !== null) {
+			const prev = thisBooking.dom.wrapper.querySelector('.selected');
+			if (prev) prev.classList.remove('selected');
+			thisBooking.selectedTable = null;
+		}
 
 		// Get current date and hour from widgets
 		thisBooking.date = thisBooking.datePicker.value;
@@ -816,9 +848,9 @@ class Booking {
 
 		// Check if there are any bookings for this date/hour
 		if (
-			typeof thisBooking.booked[thisBooking.date] == 'undefined'
-			||
-			typeof thisBooking.booked[thisBooking.date][thisBooking.hour] === 'undefined'
+			typeof thisBooking.booked[thisBooking.date] == 'undefined' ||
+			typeof thisBooking.booked[thisBooking.date][thisBooking.hour] ===
+				'undefined'
 		) {
 			allAvailable = true;
 		}
@@ -832,8 +864,7 @@ class Booking {
 
 			// If table is booked at this time, add 'booked' class
 			if (
-				!allAvailable
-				&&
+				!allAvailable &&
 				thisBooking.booked[thisBooking.date][thisBooking.hour].includes(tableId)
 			) {
 				table.classList.add(classNames.booking.tableBooked);
@@ -872,11 +903,23 @@ class Booking {
 		thisBooking.dom.tables = thisBooking.dom.wrapper.querySelectorAll(
 			select.booking.tables
 		);
+		//Grt refernce to floor plan container for table selection
+		thisBooking.dom.floorPlan =
+			thisBooking.dom.wrapper.querySelector('.floor-plan');
+		// Get references to booking form elements
+		thisBooking.dom.form =
+			thisBooking.dom.wrapper.querySelector('.booking-form');
+		thisBooking.dom.phone =
+			thisBooking.dom.wrapper.querySelector('[name="phone"]');
+		thisBooking.dom.address =
+			thisBooking.dom.wrapper.querySelector('[name="address"]');
+		thisBooking.dom.starters =
+			thisBooking.dom.wrapper.querySelectorAll('[name="starter"]');
 	}
 
 	initWidgets() {
 		const thisBooking = this;
-		
+
 		// Save references to widget instances
 		thisBooking.datePicker = new DatePicker(thisBooking.dom.datePicker);
 		thisBooking.hourPicker = new HourPicker(thisBooking.dom.hourPicker);
@@ -887,8 +930,113 @@ class Booking {
 		thisBooking.dom.wrapper.addEventListener('updated', function () {
 			thisBooking.updateDOM();
 		});
+
+		// Listen for table clicks
+		thisBooking.dom.floorPlan.addEventListener('click', function (event) {
+			thisBooking.initTables(event);
+		});
+		// Listen for form submission
+		thisBooking.dom.form.addEventListener('submit', function (event) {
+			event.preventDefault();
+			thisBooking.sendBooking();
+		});
+	}
+
+	initTables(event) {
+		const thisBooking = this;
+
+		// Check if clicked element is a table
+		const clickedElement = event.target;
+
+		if (clickedElement.classList.contains('table')) {
+			// Get table ID
+			const tableId = clickedElement.getAttribute(
+				settings.booking.tableIdAttribute
+			);
+
+			// Check if table is booked
+			if (clickedElement.classList.contains(classNames.booking.tableBooked)) {
+				alert('This table is already booked!');
+			} else {
+				// Remove 'selected' from previously selected table
+				const selectedTable =
+					thisBooking.dom.wrapper.querySelector('.selected');
+				if (selectedTable) {
+					selectedTable.classList.remove('selected');
+				}
+
+				// If clicked same table again, deselect it
+				if (thisBooking.selectedTable === parseInt(tableId)) {
+					thisBooking.selectedTable = null;
+				} else {
+					// Select new table
+					clickedElement.classList.add('selected');
+					thisBooking.selectedTable = parseInt(tableId);
+				}
+			}
+
+			console.log('Selected table:', thisBooking.selectedTable);
+		}
+	}
+
+	sendBooking() {
+		const thisBooking = this;
+
+		// Build API URL
+		const url = settings.db.url + '/' + settings.db.bookings;
+
+		//Save table number before it gets reset
+		const selectedTable = thisBooking.selectedTable;
+
+		// Prepare payload object
+		const payload = {
+			date: thisBooking.datePicker.value,
+			hour: thisBooking.hourPicker.value,
+			table: selectedTable,
+			duration: parseInt(thisBooking.hoursAmount.value),
+			ppl: parseInt(thisBooking.peopleAmount.value),
+			starters: [],
+			phone: thisBooking.dom.phone.value,
+			address: thisBooking.dom.address.value,
+		};
+
+		// Collect selected starters from checkboxes
+		for (let starter of thisBooking.dom.starters) {
+			if (starter.checked) {
+				payload.starters.push(starter.value);
+			}
+		}
+
+		console.log('Sending booking:', payload);
+
+		// Send POST request to API
+		fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(payload),
+		})
+			.then(function (response) {
+				return response.json();
+			})
+			.then(function (parsedResponse) {
+				console.log('Booking saved:', parsedResponse);
+
+				// Add new booking to thisBooking.booked so it shows as booked immediately
+				thisBooking.makeBooked(
+					payload.date,
+					payload.hour,
+					payload.duration,
+					payload.table
+				);
+
+				// Update DOM to show the new booking
+				thisBooking.updateDOM();
+			});
 	}
 }
+
 /* Main app object - initializes the application */
 const app = {
 	initData: function () {
@@ -1012,3 +1160,7 @@ const app = {
 };
 // Start the app
 app.init();
+// DEBUG: expose app for console usage when using type="module"
+if (typeof window !== 'undefined') {
+	window.app = app;
+}

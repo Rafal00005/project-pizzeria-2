@@ -198,3 +198,8 @@
     @include flex(row, flex-start, space-between);
     margin: ($base-size * 4) auto;
   }
+  .selected {
+  border: 3px solid #00d9ff;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+}

@@ -353,6 +353,9 @@ const templates = {
 	bookingWidget: Handlebars.compile(
 		document.querySelector(select.templateOf.bookingWidget).innerHTML
 	),
+	homeWidget: Handlebars.compile(
+		document.querySelector('#template-home-widget').innerHTML
+	),
 };
 // Expose config and helpers globally for widgets (DatePicker / HourPicker)
 window.select = select;
@@ -669,6 +672,61 @@ class CartProduct {
 			name: thisCartProduct.name,
 			params: thisCartProduct.params,
 		};
+	}
+}
+/* Home class - handles home page */
+class Home {
+	constructor(homeContainer) {
+		const thisHome = this;
+		thisHome.render(homeContainer);
+		thisHome.initWidgets();
+		thisHome.initActions();
+	}
+
+	render(homeContainer) {
+		const thisHome = this;
+		thisHome.dom = {};
+		thisHome.dom.wrapper = homeContainer;
+
+		// Render template
+		const generatedHTML = templates.homeWidget();
+		thisHome.dom.wrapper.innerHTML = generatedHTML;
+
+		// Get references to elements
+		thisHome.dom.carousel = thisHome.dom.wrapper.querySelector('.carousel');
+		thisHome.dom.orderBox = thisHome.dom.wrapper.querySelector('.order-online');
+		thisHome.dom.bookingBox = thisHome.dom.wrapper.querySelector('.book-table');
+	}
+
+	initWidgets() {
+		const thisHome = this;
+
+		// Initialize Flickity carousel
+		// eslint-disable-next-line no-undef
+		new Flickity(thisHome.dom.carousel, {
+			cellAlign: 'left',
+			contain: true,
+			autoPlay: 3000,
+			wrapAround: true,
+			prevNextButtons: false,
+			pageDots: true,
+		});
+	}
+
+	initActions() {
+		const thisHome = this;
+
+		// Order box click
+		thisHome.dom.orderBox.addEventListener('click', function () {
+			app.activatePage('order');
+			window.location.hash = '#/order';
+		});
+
+		// Booking box click
+		thisHome.dom.bookingBox.addEventListener('click', function () {
+			app.activatePage('booking');
+			window.location.hash = '#/booking';
+		});
 	}
 }
 /* Booking - renders template and initializes widgets (date, hour, people, hours) */
@@ -1102,6 +1160,13 @@ const app = {
 			thisApp.booking = new Booking(bookingContainer);
 		}
 	},
+	initHome: function () {
+		const thisApp = this;
+		const homeContainer = document.querySelector('#home .home-wrapper');
+		if (homeContainer) {
+			thisApp.home = new Home(homeContainer);
+		}
+	},
 
 	initPages: function () {
 		const thisApp = this;
@@ -1111,7 +1176,7 @@ const app = {
 
 		const idFromHash = window.location.hash.replace('#/', '');
 
-		let pageMatchingHash = thisApp.pages[0].id;
+		let pageMatchingHash = 'home';
 
 		for (let page of thisApp.pages) {
 			if (page.id == idFromHash) {
@@ -1156,6 +1221,7 @@ const app = {
 		thisApp.initData();
 		thisApp.initCart();
 		thisApp.initBooking();
+		thisApp.initHome();
 	},
 };
 // Start the app

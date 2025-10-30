@@ -113,7 +113,6 @@
 	text-align: center;
 	padding: ($base-size * 2);
 	border-radius: $radius;
-   
 
 	h3 {
 		font-family: $font-header;
@@ -286,21 +285,168 @@
 }
 
 /* Responsive */
+
+/* Tablets and smaller */
+@media (max-width: 992px) {
+	.home-content {
+		padding: ($base-size * 2);
+		margin: ($base-size * 3) auto;
+	}
+
+	.opinion-section {
+		.opinion {
+			gap: ($base-size * 2);
+
+			.opinion-image {
+				width: 180px;
+				height: 180px;
+			}
+		}
+	}
+
+	.gallery-section {
+		.gallery-item {
+			width: 100%;
+			height: 200px;
+		}
+	}
+}
+
+/* Mobile landscape and smaller */
 @media (max-width: 768px) {
+	.home-page {
+		padding: 0 ($base-size);
+	}
+
+	.home-content {
+		padding: ($base-size * 1.5);
+		margin: ($base-size * 2) auto;
+	}
+
 	.links-section {
 		flex-direction: column;
+		gap: ($base-size);
+
+		.link-box {
+			height: 100px;
+
+			h2 {
+				font-size: ($base-size * 1.5);
+			}
+		}
 	}
 
-	.gallery {
-		grid-template-columns: repeat(2, 1fr) !important;
+	.opening-hours {
+		padding: ($base-size * 1.5);
+
+		h3 {
+			font-size: ($base-size * 1.8);
+		}
+
+		p {
+			font-size: ($base-size);
+		}
 	}
 
-	.opinion {
-		flex-direction: column;
+	.opinion-section {
+		margin: ($base-size * 3) auto;
+		padding: 0 ($base-size);
 
-		.opinion-image {
+		.section-title {
+			font-size: ($base-size * 2);
+			margin-bottom: ($base-size * 2);
+		}
+
+		.opinion {
+			flex-direction: column;
+			padding: ($base-size);
+			gap: ($base-size * 1.5);
+
+			.opinion-image {
+				width: 100%;
+				max-width: 280px;
+				height: auto;
+			}
+
+			.opinion-title {
+				font-size: ($base-size * 1.5);
+			}
+
+			.opinion-text {
+				font-size: ($base-size);
+			}
+		}
+	}
+
+	.gallery-section {
+		margin: ($base-size * 3) auto;
+		padding: 0 ($base-size);
+
+		.gallery {
+			grid-template-columns: repeat(2, 1fr);
+			gap: ($base-size * 0.5);
+		}
+
+		.gallery-item {
 			width: 100%;
-			height: auto;
+			height: 150px;
+		}
+	}
+}
+
+/* Mobile portrait */
+@media (max-width: 480px) {
+	.home-content {
+		padding: ($base-size);
+		margin: ($base-size) auto;
+	}
+
+	.links-section {
+		.link-box {
+			height: 80px;
+
+			h2 {
+				font-size: ($base-size * 1.2);
+			}
+		}
+	}
+
+	.opening-hours {
+		padding: ($base-size);
+
+		h3 {
+			font-size: ($base-size * 1.5);
+		}
+
+		p {
+			font-size: ($base-size * 0.9);
+		}
+	}
+
+	.opinion-section {
+		.section-title {
+			font-size: ($base-size * 1.6);
+		}
+
+		.opinion {
+			.opinion-image {
+				max-width: 100%;
+			}
+
+			.opinion-title {
+				font-size: ($base-size * 1.3);
+			}
+		}
+	}
+
+	.gallery-section {
+		.gallery {
+			grid-template-columns: 1fr;
+			gap: ($base-size * 0.5);
+		}
+
+		.gallery-item {
+			height: 200px;
 		}
 	}
 }

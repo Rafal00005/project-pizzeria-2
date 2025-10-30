@@ -126,3 +126,84 @@
   }
 
 }
+/* Mobile cart: small, fixed, top-right */
+@media (max-width: 768px) {
+  .cart {
+    position: fixed;       /* stay in place on scroll */
+    top: 10px;
+    right: 10px;
+    left: auto;
+    width: auto;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    z-index: 10000;
+  }
+
+  /* Small pill button in the corner */
+  .cart__summary {
+    width: 32px;           /* ~2x smaller */
+    height: 32px;
+    border-radius: 50%;
+    background: $color-main;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* hide everything except the icon */
+    > *:not(.cart__icon) { display: none; }
+  }
+
+  .cart__icon {
+    font-size: 16px;       /* smaller icon */
+    color: $color-light;
+  }
+
+  .cart__total-number {
+    display: none;         /* hide the green "0" badge on the pill */
+  }
+
+  /* Opened panel */
+  .cart.active {
+    top: 52px;             /* panel drops below the pill */
+    right: 10px;
+    width: calc(100% - 20px);
+    max-width: 340px;
+    max-height: calc(100vh - 70px); /* keep inside screen */
+    overflow: auto;
+    padding: $base-size;
+    background: $color-light;
+    border-radius: $radius;
+    box-shadow: 0 4px 16px rgba(0,0,0,.25);
+  }
+
+  /* Restore header layout inside the opened panel */
+  .cart.active .cart__summary {
+    background: transparent;
+    width: 100%;
+    height: auto;
+    border-radius: 0;
+    box-shadow: none;
+    justify-content: space-between;
+    border-bottom: 1px solid lighten($color-dark, 70%);
+    padding: 0 0 ($base-size * .5);
+    margin: 0 0 ($base-size * .5);
+
+    > * { display: flex; } /* show text, price, etc. again */
+  }
+
+  /* Optional: show count inside the opened header, themed (not green) */
+  .cart.active .cart__total-number {
+    display: inline-flex;
+    position: static;
+    width: 26px;
+    height: 26px;
+    line-height: 24px;
+    font-size: ($base-size * .8);
+    background: $color-main;
+    color: $color-light;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+  }
+}
